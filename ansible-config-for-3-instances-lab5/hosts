@@ -1,0 +1,13 @@
+[ubuntu_remote]
+ubuntu-remote    ansible_host=52.168.149.167    ansible_user=azureuser
+
+[local]
+centos-local    ansible_host=192.168.56.3    ansible_user=root
+ubuntu-local    ansible_host=192.168.56.4    ansible_user=ubuntu
+
+[All:children]
+ubuntu_remote
+local
+
+[All:vars]
+ansible_ssh_private_key_file=~/.ssh/ubuntu-server

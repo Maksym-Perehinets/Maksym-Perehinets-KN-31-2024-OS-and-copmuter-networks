@@ -1,0 +1,69 @@
+---
+- name: Install and update apache2 or nginx
+  hosts: all
+  become: yes
+
+  tasks:
+
+  - name: Update server packages on Debian distros
+    apt:
+      name: nginx
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == 'Ubuntu'
+
+# Add open ports for firewall (Ubuntu)
+  - name: Update firewall policy 
+    community.general.ufw:
+      rule: "allow"
+      port: "{{ item }}"
+      proto: tcp
+    with_items:
+      - "22"
+      - "80"
+    when: ansible_distribution == 'Ubuntu'
+
+# Enable firewall on (Ubuntu)
+  - name: Update firewall policy 
+    community.general.ufw:
+      state: enabled
+      policy: "deny"
+      logging: "on"
+    when: ansible_distribution == 'Ubuntu'
+
+  - name: Update server packages on Redhet distros
+    yum:
+      name: httpd
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == 'CentOS'
+
+  - name: Werify that httpd is working CentOS
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == 'CentOS'
+
+  - name: Install or upgrade the net-tools package
+    yum:
+      name: net-tools
+      state: latest
+    when: ansible_distribution == 'CentOS'
+
+# Add open ports to firewall (centos)
+  - name: Add ports to firewall
+    firewalld:
+      port: "{{ item }}/tcp"
+      state: enabled
+      immediate: true
+      permanent: true
+    with_items:
+      - 22
+      - 80
+    when: ansible_distribution == 'CentOS'
+
+  - name: Copy index.html
+    ansible.builtin.copy:
+      src: ./index.html
+      dest: /var/www/html/
