@@ -40,5 +40,7 @@ module "ec2" {
   public_subnet_id           = module.vpc-subnet.public_subnet_id
   key_pair                   = resource.aws_key_pair.ssh-key.key_name
   ami                        = data.aws_ami.ubuntu.id
+  arn                        = [module.route-tables.arn]
 
+  depends_on = [ module.vpc-subnet ]
 }
